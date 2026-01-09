@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>지구 온난화 데이터 분석 인포그래픽 (2020-2024)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700;900&display=swap" rel="stylesheet">
+    
+    <!-- 
+        Selected Palette: "Urgent Climate" based on high-contrast vibrant needs.
+        Primary Dark: #1e293b (Slate 800)
+        Accent Red: #ef4444 (Red 500) - Represents Heat/Danger
+        Accent Blue: #0ea5e9 (Sky 500) - Represents Atmosphere/CO2
+        Accent Orange: #f97316 (Orange 500) - Represents Methane/Warning
+        Background: #f8fafc (Slate 50)
+    -->
+
+    <!-- 
+        Source Material Integration Plan:
+        1. Theme: Climate Crisis Acceleration.
+        2. Data Points: 2020-2024 CO2, CH4, Temp.
+        3. Narrative: 
+           - Hook: The current state (2024).
+           - Analysis: The direct correlation between CO2 and Temp.
+           - Detail: The silent rise of Methane.
+           - Climax: The rapid temperature spike in 2023.
+        4. Visualization Choices (NO SVG):
+           - Correlation: Multi-axis Line Chart (Chart.js) -> Compare trends.
+           - Methane: Filled Area Chart (Chart.js) -> Show volume accumulation.
+           - Temp Spike: Bar Chart (Chart.js) -> Highlight discrete annual changes.
+           - Process: CSS-styled Flow (Tailwind) -> Cause & Effect.
+        
+        CONFIRMATION: NO SVG USED. NO MERMAID JS USED.
+    -->
+
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px; /* Max width constraint */
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px; /* Base height */
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Header Section -->
+    <header class="bg-slate-900 text-white py-12 px-4 shadow-lg">
+        <div class="max-w-6xl mx-auto text-center">
+            <h1 class="text-4xl md:text-6xl font-black mb-4 tracking-tight">
+                <span class="text-sky-400">지구 온난화</span> 데이터 분석 리포트
+            </h1>
+            <p class="text-xl md:text-2xl text-slate-300 font-light">
+                2020년 - 2024년: 기후 위기의 가속화
+            </p>
+            <div class="mt-8 flex justify-center space-x-2">
+                <div class="h-1 w-20 bg-red-500 rounded-full"></div>
+                <div class="h-1 w-20 bg-orange-500 rounded-full"></div>
+                <div class="h-1 w-20 bg-sky-500 rounded-full"></div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-12 space-y-16">
+
+        <!-- Section 1: Introduction & Summary -->
+        <section>
+            <div class="bg-white rounded-2xl shadow-xl p-8 border-l-8 border-red-500">
+                <h2 class="text-3xl font-bold mb-4 text-slate-800">분석 개요</h2>
+                <p class="text-lg text-slate-600 leading-relaxed">
+                    본 보고서는 <strong>2020년부터 2024년까지</strong> 5년간의 대기 중 이산화탄소($CO_2$), 메탄($CH_4$) 농도 및 지구 평균 기온 데이터를 분석한 결과입니다. 
+                    데이터에 따르면 온실가스 농도의 지속적인 증가와 함께 지구 평균 기온이 <strong>정비례하며 상승</strong>하고 있습니다. 특히 2023년 이후 기온 상승폭이 가파르게 나타나며 기후 위기가 임계점에 도달하고 있음을 시사합니다.
+                </p>
+            </div>
+        </section>
+
+        <!-- Section 2: Key Performance Indicators (KPIs) - 2024 Snapshot -->
+        <section>
+            <div class="mb-6">
+                <h2 class="text-3xl font-bold text-slate-800 mb-2">2024년 현재 상태</h2>
+                <p class="text-slate-500">가장 최근 데이터인 2024년의 주요 기후 지표입니다.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- KPI Card 1: Temperature -->
+                <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-red-500 text-center transform transition hover:scale-105 duration-300">
+                    <div class="text-red-500 font-bold text-lg mb-2">평균 기온 (Average Temp)</div>
+                    <div class="text-5xl font-black text-slate-800 mb-2">14.7°C</div>
+                    <p class="text-sm text-slate-400">2020년 대비 +1.3°C 상승</p>
+                </div>
+                <!-- KPI Card 2: CO2 -->
+                <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-sky-500 text-center transform transition hover:scale-105 duration-300">
+                    <div class="text-sky-500 font-bold text-lg mb-2">이산화탄소 (CO2)</div>
+                    <div class="text-5xl font-black text-slate-800 mb-2">428.0 <span class="text-2xl">ppm</span></div>
+                    <p class="text-sm text-slate-400">지속적인 농도 증가 추세</p>
+                </div>
+                <!-- KPI Card 3: Methane -->
+                <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-orange-500 text-center transform transition hover:scale-105 duration-300">
+                    <div class="text-orange-500 font-bold text-lg mb-2">메탄 (CH4)</div>
+                    <div class="text-5xl font-black text-slate-800 mb-2">2022 <span class="text-2xl">ppb</span></div>
+                    <p class="text-sm text-slate-400">온난화 효과가 강력한 온실가스</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: The Correlation (Primary Visual) -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+            <div class="lg:col-span-1 space-y-4">
+                <h2 class="text-3xl font-bold text-slate-800">기온과 이산화탄소의 동반 상승</h2>
+                <div class="w-16 h-1 bg-sky-500 mb-4"></div>
+                <p class="text-slate-600 leading-relaxed">
+                    지난 5년간의 데이터를 시각화하면, 대기 중 <strong>이산화탄소($CO_2$) 농도</strong>(파란색 선)의 증가와 <strong>지구 평균 기온</strong>(빨간색 막대)의 상승이 정확히 일치하는 패턴을 보입니다.
+                </p>
+                <div class="bg-slate-100 p-4 rounded-lg text-sm">
+                    <strong class="text-slate-800 block mb-1">💡 핵심 분석:</strong>
+                    이산화탄소 농도가 417ppm에서 428ppm으로 증가하는 동안, 기온은 13.4도에서 14.7도로 급격히 상승했습니다. 이는 온실효과의 직접적인 증거입니다.
+                </div>
+            </div>
+            <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg">
+                <div class="chart-container">
+                    <canvas id="correlationChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: The 2023 Surge (Secondary Visual) -->
+        <section class="bg-slate-900 rounded-3xl p-8 md:p-12 text-white">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <div class="order-2 md:order-1">
+                    <div class="chart-container">
+                        <canvas id="surgeChart"></canvas>
+                    </div>
+                </div>
+                <div class="order-1 md:order-2 space-y-6">
+                    <h2 class="text-3xl md:text-4xl font-bold text-white">
+                        <span class="text-red-500">2023년:</span> 기후 충격의 해
+                    </h2>
+                    <p class="text-slate-300 text-lg leading-relaxed">
+                        2020년부터 2022년까지 기온 상승폭은 0.1°C 수준으로 완만했으나, <strong>2022년에서 2023년 사이</strong>에 무려 <strong>1.0°C</strong>가 급등했습니다.
+                    </p>
+                    <ul class="space-y-3">
+                        <li class="flex items-center space-x-3">
+                            <span class="text-2xl">⚠️</span>
+                            <span>2022년 기온: <strong>13.6°C</strong></span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <span class="text-2xl">🔥</span>
+                            <span class="text-red-400 font-bold">2023년 기온: 14.6°C (+1.0°C 급등)</span>
+                        </li>
+                    </ul>
+                    <p class="text-sm text-slate-400 mt-4">
+                        * 그래프는 전년 대비 기온 상승폭을 나타냅니다. 2023년의 막대가 비정상적으로 높은 것을 확인할 수 있습니다.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Methane & Process Flow -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Methane Chart -->
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center">
+                    <span class="w-3 h-3 bg-orange-500 rounded-full mr-2"></span>
+                    메탄($CH_4$) 농도 누적 추이
+                </h3>
+                <p class="text-sm text-slate-500 mb-6">메탄은 이산화탄소보다 온실효과가 강력합니다. 지난 5년간 꾸준히 증가하여 2024년 2022ppb에 도달했습니다.</p>
+                <div class="chart-container h-64">
+                    <canvas id="methaneChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Cause & Effect Diagram (HTML/CSS) -->
+            <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col justify-center">
+                <h3 class="text-xl font-bold text-slate-800 mb-6 text-center">지구 온난화 가속화 메커니즘</h3>
+                
+                <div class="space-y-4 px-4">
+                    <!-- Step 1 -->
+                    <div class="flex items-center bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        <div class="bg-sky-100 text-sky-600 font-bold rounded-full w-10 h-10 flex items-center justify-center flex-shrink-0 mr-4">1</div>
+                        <div>
+                            <h4 class="font-bold text-slate-800">온실가스 배출 증가</h4>
+                            <p class="text-xs text-slate-500">CO2 428ppm, CH4 2022ppb 돌파</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Arrow -->
+                    <div class="flex justify-center text-slate-300 text-xl">▼</div>
+
+                    <!-- Step 2 -->
+                    <div class="flex items-center bg-orange-50 p-4 rounded-lg border border-orange-200">
+                        <div class="bg-orange-100 text-orange-600 font-bold rounded-full w-10 h-10 flex items-center justify-center flex-shrink-0 mr-4">2</div>
+                        <div>
+                            <h4 class="font-bold text-slate-800">대기열 축적 (온실효과)</h4>
+                            <p class="text-xs text-slate-500">열 에너지가 우주로 빠져나가지 못함</p>
+                        </div>
+                    </div>
+
+                    <!-- Arrow -->
+                    <div class="flex justify-center text-slate-300 text-xl">▼</div>
+
+                    <!-- Step 3 -->
+                    <div class="flex items-center bg-red-50 p-4 rounded-lg border border-red-200 shadow-sm">
+                        <div class="bg-red-100 text-red-600 font-bold rounded-full w-10 h-10 flex items-center justify-center flex-shrink-0 mr-4">3</div>
+                        <div>
+                            <h4 class="font-bold text-red-700">지구 평균 기온 급상승</h4>
+                            <p class="text-xs text-red-600 font-semibold">2023-2024년 14.7°C 도달 (임계점 접근)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer / Conclusion -->
+        <footer class="bg-slate-800 text-slate-300 py-8 px-8 rounded-2xl text-center">
+            <h2 class="text-2xl font-bold text-white mb-4">결론 및 시사점</h2>
+            <p class="max-w-3xl mx-auto leading-relaxed mb-6">
+                데이터는 명확합니다. 온실가스 배출 억제를 위한 즉각적인 조치가 없을 경우, <strong>기온 상승세는 더욱 가팔라질 것</strong>입니다. 
+                특히 최근 2년 사이의 급격한 변화는 우리가 <strong>기후 비상사태</strong>의 한가운데에 있음을 경고하고 있습니다.
+            </p>
+            <div class="text-sm text-slate-500">
+                Data Source: Provided User CSV Report (2020-2024 Analysis)
+            </div>
+        </footer>
+
+    </main>
+
+    <script>
+        // --- Data Handling ---
+        const years = ['2020', '2021', '2022', '2023', '2024'];
+        
+        // Data derived from source material
+        const dataCO2 = [417.6, 421.4, 422.8, 425.6, 428.0];
+        const dataTemp = [13.4, 13.5, 13.6, 14.6, 14.7];
+        const dataCH4 = [1972, 1988, 2004, 2010, 2022];
+        
+        // Calculated Data: Yearly Temperature Change
+        // 2020 is base, so change is 0 or null for prev year comparison. 
+        // Let's show change from previous year. 
+        // 2021: +0.1, 2022: +0.1, 2023: +1.0, 2024: +0.1
+        const tempChange = [0, 0.1, 0.1, 1.0, 0.1]; 
+        const changeLabels = ['2020 (기준)', '2021 변동', '2022 변동', '2023 급등', '2024 변동'];
+
+        // --- Label Wrapping Utility ---
+        function wrapLabel(label) {
+            if (label.length > 16) {
+                const words = label.split(' ');
+                const lines = [];
+                let currentLine = words[0];
+                for (let i = 1; i < words.length; i++) {
+                    if ((currentLine + " " + words[i]).length < 16) {
+                        currentLine += " " + words[i];
+                    } else {
+                        lines.push(currentLine);
+                        currentLine = words[i];
+                    }
+                }
+                lines.push(currentLine);
+                return lines;
+            }
+            return label;
+        }
+
+        // --- Common Tooltip Config ---
+        const commonTooltip = {
+            callbacks: {
+                title: function(tooltipItems) {
+                    const item = tooltipItems[0];
+                    let label = item.chart.data.labels[item.dataIndex];
+                    if (Array.isArray(label)) {
+                        return label.join(' ');
+                    } else {
+                        return label;
+                    }
+                }
+            }
+        };
+
+        // --- Chart 1: Correlation (Mixed Chart) ---
+        const ctxCorrelation = document.getElementById('correlationChart').getContext('2d');
+        new Chart(ctxCorrelation, {
+            type: 'bar',
+            data: {
+                labels: years,
+                datasets: [
+                    {
+                        label: '평균 기온 (°C)',
+                        data: dataTemp,
+                        type: 'line',
+                        borderColor: '#ef4444', // Red
+                        backgroundColor: '#ef4444',
+                        borderWidth: 3,
+                        yAxisID: 'y1',
+                        tension: 0.3,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    },
+                    {
+                        label: '이산화탄소 (ppm)',
+                        data: dataCO2,
+                        backgroundColor: 'rgba(14, 165, 233, 0.7)', // Sky Blue
+                        borderColor: '#0ea5e9',
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        yAxisID: 'y',
+                        barPercentage: 0.5
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    tooltip: commonTooltip,
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: '이산화탄소 (ppm)' },
+                        min: 410, // Adjust min to show variation clearly
+                        grid: { display: false }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: { display: true, text: '기온 (°C)' },
+                        min: 13, // Adjust min to show variation clearly
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // --- Chart 2: The Surge (Bar Chart) ---
+        const ctxSurge = document.getElementById('surgeChart').getContext('2d');
+        new Chart(ctxSurge, {
+            type: 'bar',
+            data: {
+                labels: changeLabels.map(l => wrapLabel(l)), // Apply wrapping if needed
+                datasets: [{
+                    label: '전년 대비 기온 상승폭 (°C)',
+                    data: tempChange,
+                    backgroundColor: (context) => {
+                        const value = context.raw;
+                        // Highlight the surge in Red, others in faint grey/blue
+                        return value >= 0.9 ? '#ef4444' : 'rgba(255, 255, 255, 0.3)';
+                    },
+                    borderColor: (context) => {
+                        return context.raw >= 0.9 ? '#ffffff' : 'transparent';
+                    },
+                    borderWidth: 2,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    tooltip: commonTooltip,
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                        ticks: { color: '#94a3b8' },
+                        title: { display: true, text: '상승폭 (°C)', color: '#94a3b8' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#fff', font: { weight: 'bold' } }
+                    }
+                }
+            }
+        });
+
+        // --- Chart 3: Methane (Area Chart) ---
+        const ctxMethane = document.getElementById('methaneChart').getContext('2d');
+        new Chart(ctxMethane, {
+            type: 'line',
+            data: {
+                labels: years,
+                datasets: [{
+                    label: '메탄 농도 (ppb)',
+                    data: dataCH4,
+                    borderColor: '#f97316', // Orange
+                    backgroundColor: (context) => {
+                        const ctx = context.chart.ctx;
+                        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+                        gradient.addColorStop(0, 'rgba(249, 115, 22, 0.5)');
+                        gradient.addColorStop(1, 'rgba(249, 115, 22, 0.0)');
+                        return gradient;
+                    },
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#f97316',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    tooltip: commonTooltip,
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        min: 1950, // Optimize scale to show trend
+                        grid: { borderDash: [5, 5] },
+                        title: { display: true, text: '메탄 (ppb)' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
