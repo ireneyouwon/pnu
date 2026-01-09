@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Climate Data Interactive Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@100;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Pretendard', sans-serif; background-color: #0f172a; color: #f8fafc; overflow-x: hidden; }
+        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .chart-container { position: relative; width: 100%; height: 400px; }
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range]:focus { outline: none; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 8px; cursor: pointer; background: #334155; border-radius: 4px; }
+        input[type=range]::-webkit-slider-thumb { height: 24px; width: 24px; border-radius: 50%; background: #ef4444; cursor: pointer; -webkit-appearance: none; margin-top: -8px; box-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
+        .nav-sticky { position: sticky; top: 0; z-index: 100; background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px); }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Navigation -->
+    <nav class="nav-sticky border-b border-white/10 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <a href="index.html" class="group flex items-center space-x-3 text-white transition-all">
+                <div class="bg-white/10 p-2 rounded-lg group-hover:bg-red-500/20 transition-colors">
+                    <span class="text-xl">🏠</span>
+                </div>
+                <span class="font-bold text-lg tracking-tight">메인 홈으로</span>
+            </a>
+            <div class="flex items-center space-x-4">
+                <span class="hidden md:inline text-slate-400 text-sm">지구 온난화 시각화 프로젝트 v2.0</span>
+                <div class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-6 py-12">
+        
+        <!-- Hero Section -->
+        <header class="mb-16 text-center md:text-left">
+            <h1 class="text-5xl md:text-7xl font-black mb-6 leading-tight">
+                변화하는 <span class="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-orange-400 to-sky-400">지구의 신호</span>
+            </h1>
+            <p class="text-xl text-slate-400 max-w-2xl">
+                2020년부터 2024년까지의 기상 데이터를 직접 탐색해 보세요. 온실가스 농도와 기온 상승 사이의 밀접한 관계를 인터랙티브 차트로 확인하실 수 있습니다.
+            </p>
+        </header>
+
+        <!-- Interactive Control Panel -->
+        <section class="glass-card rounded-3xl p-8 mb-12 border-l-4 border-red-500">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 items-center">
+                <div class="lg:col-span-1">
+                    <h3 class="text-2xl font-bold mb-2">데이터 타임라인</h3>
+                    <p class="text-slate-400 text-sm">슬라이더를 움직여 특정 연도까지의 누적 데이터를 확인하세요.</p>
+                </div>
+                <div class="lg:col-span-3 flex items-center space-x-6">
+                    <span class="text-slate-500 font-bold">2020</span>
+                    <input type="range" id="yearSlider" min="2020" max="2024" value="2024" step="1" class="flex-grow">
+                    <span class="text-red-500 font-bold text-xl" id="currentYearDisplay">2024</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboard Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+            
+            <!-- CO2 & Temp Correlation Card -->
+            <div class="lg:col-span-2 glass-card rounded-3xl p-8 hover:bg-slate-800/50 transition-colors">
+                <div class="flex justify-between items-start mb-8">
+                    <div>
+                        <h3 class="text-2xl font-bold">이산화탄소 vs 기온 상관관계</h3>
+                        <p class="text-slate-400">CO2 농도가 증가함에 따라 기온이 어떻게 반응하는지 보여줍니다.</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <span class="px-3 py-1 bg-sky-500/20 text-sky-400 text-xs rounded-full border border-sky-500/30">CO2 (ppm)</span>
+                        <span class="px-3 py-1 bg-red-500/20 text-red-400 text-xs rounded-full border border-red-500/30">Temp (°C)</span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="mainChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Insight Stats Card -->
+            <div class="space-y-8">
+                <div class="glass-card rounded-3xl p-8 border-t-4 border-orange-500">
+                    <h4 class="text-orange-400 font-bold text-sm uppercase mb-4 tracking-widest">Methane Concentration</h4>
+                    <div class="flex items-end space-x-2 mb-4">
+                        <span class="text-5xl font-black" id="methaneValue">2022</span>
+                        <span class="text-xl text-slate-500 mb-1">ppb</span>
+                    </div>
+                    <div class="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
+                        <div id="methaneProgress" class="bg-orange-500 h-full transition-all duration-500" style="width: 100%"></div>
+                    </div>
+                    <p class="mt-4 text-xs text-slate-400 leading-relaxed">
+                        메탄은 이산화탄소보다 짧은 기간 동안 더 강력한 온난화 효과를 유발합니다. 현재 농도는 2020년 대비 약 2.5% 증가했습니다.
+                    </p>
+                </div>
+
+                <div class="glass-card rounded-3xl p-8 border-t-4 border-red-500">
+                    <h4 class="text-red-400 font-bold text-sm uppercase mb-4 tracking-widest">Global Heat Index</h4>
+                    <div class="flex items-end space-x-2 mb-2">
+                        <span class="text-5xl font-black text-red-500" id="tempValue">14.7</span>
+                        <span class="text-xl text-slate-500 mb-1">°C</span>
+                    </div>
+                    <div id="tempAlert" class="bg-red-500/10 text-red-400 p-3 rounded-xl text-xs font-semibold flex items-center">
+                        <span class="mr-2">🔥</span> 2023년 이후 급격한 온도 상승 감지됨
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Impact Flow -->
+        <section class="glass-card rounded-3xl p-12 overflow-hidden relative">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-red-500/10 blur-[100px] rounded-full"></div>
+            <div class="relative z-10">
+                <h3 class="text-3xl font-bold mb-12 text-center">온난화 가속화의 악순환</h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                    <div class="p-6 bg-white/5 rounded-2xl border border-white/10 text-center">
+                        <div class="text-3xl mb-4">🏭</div>
+                        <h5 class="font-bold mb-2">화석 연료 사용</h5>
+                        <p class="text-xs text-slate-400">에너지 소비 증가에 따른 배출</p>
+                    </div>
+                    <div class="flex justify-center md:rotate-[-90deg]">
+                        <span class="text-slate-600 text-2xl">▼</span>
+                    </div>
+                    <div class="p-6 bg-white/5 rounded-2xl border border-white/10 text-center">
+                        <div class="text-3xl mb-4">☁️</div>
+                        <h5 class="font-bold mb-2">온실가스 농도 상승</h5>
+                        <p class="text-xs text-slate-400">CO2 428ppm 돌파 (2024)</p>
+                    </div>
+                    <div class="flex justify-center md:rotate-[-90deg]">
+                        <span class="text-slate-600 text-2xl">▼</span>
+                    </div>
+                    <div class="p-6 bg-red-500/20 rounded-2xl border border-red-500/30 text-center">
+                        <div class="text-3xl mb-4">🌡️</div>
+                        <h5 class="font-bold text-red-400 mb-2">지구 온도 임계점</h5>
+                        <p class="text-xs text-slate-400">5년 만에 1.3도 급등</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="mt-24 pt-12 border-t border-white/10 text-center text-slate-500 text-sm">
+            <p>© 2026 Climate Intelligence Lab. All data derived from user analysis report.</p>
+        </footer>
+    </main>
+
+    <script>
+        // --- Raw Data ---
+        const rawData = [
+            { year: 2020, co2: 417.6, ch4: 1972, temp: 13.4 },
+            { year: 2021, co2: 421.4, ch4: 1988, temp: 13.5 },
+            { year: 2022, co2: 422.8, ch4: 2004, temp: 13.6 },
+            { year: 2023, co2: 425.6, ch4: 2010, temp: 14.6 },
+            { year: 2024, co2: 428.0, ch4: 2022, temp: 14.7 }
+        ];
+
+        // --- DOM Elements ---
+        const slider = document.getElementById('yearSlider');
+        const yearDisplay = document.getElementById('currentYearDisplay');
+        const methaneValue = document.getElementById('methaneValue');
+        const methaneProgress = document.getElementById('methaneProgress');
+        const tempValue = document.getElementById('tempValue');
+        const tempAlert = document.getElementById('tempAlert');
+
+        // --- Chart Initialization ---
+        const ctx = document.getElementById('mainChart').getContext('2d');
+        let mainChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: rawData.map(d => d.year),
+                datasets: [
+                    {
+                        label: '평균 기온 (°C)',
+                        data: rawData.map(d => d.temp),
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        borderWidth: 4,
+                        tension: 0.4,
+                        yAxisID: 'y1',
+                        fill: true,
+                        pointBackgroundColor: '#ef4444',
+                        pointRadius: 6,
+                        pointHoverRadius: 8
+                    },
+                    {
+                        label: '이산화탄소 (ppm)',
+                        data: rawData.map(d => d.co2),
+                        borderColor: '#0ea5e9',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        tension: 0.4,
+                        yAxisID: 'y',
+                        pointRadius: 0,
+                        pointHoverRadius: 6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        titleFont: { size: 14, weight: 'bold' },
+                        padding: 12,
+                        callbacks: {
+                            label: function(context) {
+                                return ` ${context.dataset.label}: ${context.parsed.y}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#64748b' }
+                    },
+                    y: {
+                        position: 'left',
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#0ea5e9' },
+                        min: 410,
+                        max: 440
+                    },
+                    y1: {
+                        position: 'right',
+                        grid: { display: false },
+                        ticks: { color: '#ef4444' },
+                        min: 13,
+                        max: 15.5
+                    }
+                }
+            }
+        });
+
+        // --- Interactive Update Logic ---
+        function updateUI(maxYear) {
+            const filteredData = rawData.filter(d => d.year <= maxYear);
+            const currentData = filteredData[filteredData.length - 1];
+
+            // Update Labels
+            yearDisplay.innerText = maxYear;
+            methaneValue.innerText = currentData.ch4;
+            tempValue.innerText = currentData.temp.toFixed(1);
+
+            // Update Progress Bar (CH4)
+            const methanePercent = ((currentData.ch4 - 1900) / (2100 - 1900)) * 100;
+            methaneProgress.style.width = methanePercent + '%';
+
+            // Show Alert for 2023+
+            if (maxYear >= 2023) {
+                tempAlert.style.opacity = '1';
+                tempAlert.style.transform = 'translateY(0)';
+            } else {
+                tempAlert.style.opacity = '0.3';
+            }
+
+            // Update Chart
+            mainChart.data.labels = filteredData.map(d => d.year);
+            mainChart.data.datasets[0].data = filteredData.map(d => d.temp);
+            mainChart.data.datasets[1].data = filteredData.map(d => d.co2);
+            mainChart.update('none'); // Update without animation for smoother slider feel
+        }
+
+        slider.addEventListener('input', (e) => {
+            updateUI(parseInt(e.target.value));
+        });
+
+        // Initial setup
+        updateUI(2024);
+    </script>
+</body>
+</html>
