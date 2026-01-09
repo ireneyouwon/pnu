@@ -55,9 +55,30 @@
                 height: 400px;
             }
         }
+        /* Sticky Navigation Bar */
+        .nav-sticky {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            backdrop-filter: blur(8px);
+            background-color: rgba(30, 41, 59, 0.9);
+        }
     </style>
 </head>
 <body class="antialiased">
+
+    <!-- Navigation Bar -->
+    <nav class="nav-sticky py-3 px-6 shadow-md border-b border-slate-700">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <a href="index.html" class="flex items-center space-x-2 text-white hover:text-sky-400 transition-colors duration-200">
+                <span class="text-2xl">🏠</span>
+                <span class="font-bold tracking-tight">메인 홈으로</span>
+            </a>
+            <div class="hidden md:block text-slate-400 text-sm">
+                지구 온난화 데이터 분석 센터
+            </div>
+        </div>
+    </nav>
 
     <!-- Header Section -->
     <header class="bg-slate-900 text-white py-12 px-4 shadow-lg">
@@ -248,9 +269,6 @@
         const dataCH4 = [1972, 1988, 2004, 2010, 2022];
         
         // Calculated Data: Yearly Temperature Change
-        // 2020 is base, so change is 0 or null for prev year comparison. 
-        // Let's show change from previous year. 
-        // 2021: +0.1, 2022: +0.1, 2023: +1.0, 2024: +0.1
         const tempChange = [0, 0.1, 0.1, 1.0, 0.1]; 
         const changeLabels = ['2020 (기준)', '2021 변동', '2022 변동', '2023 급등', '2024 변동'];
 
@@ -300,7 +318,7 @@
                         label: '평균 기온 (°C)',
                         data: dataTemp,
                         type: 'line',
-                        borderColor: '#ef4444', // Red
+                        borderColor: '#ef4444',
                         backgroundColor: '#ef4444',
                         borderWidth: 3,
                         yAxisID: 'y1',
@@ -311,7 +329,7 @@
                     {
                         label: '이산화탄소 (ppm)',
                         data: dataCO2,
-                        backgroundColor: 'rgba(14, 165, 233, 0.7)', // Sky Blue
+                        backgroundColor: 'rgba(14, 165, 233, 0.7)',
                         borderColor: '#0ea5e9',
                         borderWidth: 1,
                         borderRadius: 4,
@@ -339,7 +357,7 @@
                         display: true,
                         position: 'left',
                         title: { display: true, text: '이산화탄소 (ppm)' },
-                        min: 410, // Adjust min to show variation clearly
+                        min: 410,
                         grid: { display: false }
                     },
                     y1: {
@@ -347,7 +365,7 @@
                         display: true,
                         position: 'right',
                         title: { display: true, text: '기온 (°C)' },
-                        min: 13, // Adjust min to show variation clearly
+                        min: 13,
                         grid: {
                             color: 'rgba(0, 0, 0, 0.05)'
                         }
@@ -364,13 +382,12 @@
         new Chart(ctxSurge, {
             type: 'bar',
             data: {
-                labels: changeLabels.map(l => wrapLabel(l)), // Apply wrapping if needed
+                labels: changeLabels.map(l => wrapLabel(l)),
                 datasets: [{
                     label: '전년 대비 기온 상승폭 (°C)',
                     data: tempChange,
                     backgroundColor: (context) => {
                         const value = context.raw;
-                        // Highlight the surge in Red, others in faint grey/blue
                         return value >= 0.9 ? '#ef4444' : 'rgba(255, 255, 255, 0.3)';
                     },
                     borderColor: (context) => {
@@ -411,7 +428,7 @@
                 datasets: [{
                     label: '메탄 농도 (ppb)',
                     data: dataCH4,
-                    borderColor: '#f97316', // Orange
+                    borderColor: '#f97316',
                     backgroundColor: (context) => {
                         const ctx = context.chart.ctx;
                         const gradient = ctx.createLinearGradient(0, 0, 0, 300);
@@ -435,7 +452,7 @@
                 },
                 scales: {
                     y: {
-                        min: 1950, // Optimize scale to show trend
+                        min: 1950,
                         grid: { borderDash: [5, 5] },
                         title: { display: true, text: '메탄 (ppb)' }
                     },
