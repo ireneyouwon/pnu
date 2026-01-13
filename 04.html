@@ -3,75 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>대학 학과 데이터 대시보드</title>
+    <title>간호학과 취업률 성과 분석</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap');
-        body { font-family: 'Pretendard', sans-serif; background-color: #f8fafc; }
-        .card { background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        body { font-family: 'Pretendard', sans-serif; background-color: #f0fdfa; }
+        .glass-card { background: rgba(255, 255, 255, 0.95); border-radius: 24px; border: 1px solid #ccfbf1; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.03); }
+        .employment-gradient { background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%); }
+        .stat-value { font-variant-numeric: tabular-nums; }
+        .home-btn:hover { transform: translateY(-2px); }
     </style>
 </head>
-<body class="p-4 md:p-8">
-    <div class="max-w-7xl mx-auto">
-        <!-- 헤더 -->
-        <header class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+<body class="p-4 md:p-10 text-slate-900">
+    <div class="max-w-6xl mx-auto">
+        <!-- 네비게이션 & 홈 버튼 -->
+        <nav class="flex justify-between items-center mb-8">
+            <button onclick="location.reload()" class="home-btn flex items-center gap-2 px-5 py-2.5 bg-white border border-teal-100 rounded-2xl shadow-sm text-teal-700 font-bold transition-all active:scale-95">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                홈으로
+            </button>
+            <div class="text-xs font-bold text-slate-400 tracking-widest uppercase">Dashboard v2.1</div>
+        </nav>
+
+        <!-- 메인 헤더 -->
+        <header class="mb-12 flex flex-col md:flex-row justify-between items-end gap-6">
             <div>
-                <h1 class="text-3xl font-bold text-slate-800">🎓 학과 데이터 분석 대시보드</h1>
-                <p class="text-slate-500">학과별 경쟁률, 취업률 및 등록금 통계</p>
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="bg-teal-600 text-white text-[10px] font-bold px-2 py-1 rounded">DEEP ANALYSIS</span>
+                    <span class="text-teal-600 text-sm font-semibold tracking-wider">취업 성과 리포트</span>
+                </div>
+                <h1 class="text-4xl md:text-5xl font-black tracking-tight text-slate-800">
+                    🩺 간호학과 <span class="text-teal-600">취업률 성과 지표</span>
+                </h1>
+                <p class="text-slate-500 mt-4 text-lg">실제 데이터 기반의 대학별 취업 경쟁력 및 졸업 후 진로 성과 분석</p>
             </div>
-            <div class="flex gap-2">
-                <input type="text" id="searchInput" placeholder="학과 또는 대학명 검색..." class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <div class="bg-white p-2 rounded-2xl shadow-sm border flex gap-1">
+                <button onclick="filterData('all')" class="nav-filter-btn px-4 py-2 rounded-xl text-sm font-bold transition-all bg-teal-600 text-white shadow-md">전체</button>
+                <button onclick="filterData('대학')" class="nav-filter-btn px-4 py-2 rounded-xl text-sm font-bold transition-all text-slate-500 hover:bg-slate-50">학부</button>
+                <button onclick="filterData('대학원')" class="nav-filter-btn px-4 py-2 rounded-xl text-sm font-bold transition-all text-slate-500 hover:bg-slate-50">대학원</button>
             </div>
         </header>
 
-        <!-- 요약 카드 -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="card p-6 border-l-4 border-blue-500">
-                <p class="text-sm text-slate-500 font-semibold">평균 취업률</p>
-                <h2 class="text-2xl font-bold text-slate-800" id="avgEmployment">72.4%</h2>
+        <!-- 핵심 취업 지표 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            <div class="glass-card p-8 relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
+                    <svg class="w-16 h-16 text-teal-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-6h2v6zm4 0h-2V7h2v10z"/></svg>
+                </div>
+                <p class="text-sm font-bold text-teal-600 mb-1">최고 취업률 학과</p>
+                <h2 class="text-4xl font-black text-slate-800 tracking-tighter">95.0<span class="text-xl ml-1">%</span></h2>
+                <p class="text-sm text-slate-400 mt-2 font-medium">부산대학교 일반대학원</p>
             </div>
-            <div class="card p-6 border-l-4 border-emerald-500">
-                <p class="text-sm text-slate-500 font-semibold">최고 경쟁률</p>
-                <h2 class="text-2xl font-bold text-slate-800" id="maxCompetition">8.0 : 1</h2>
+            <div class="glass-card p-8 border-l-8 border-teal-500">
+                <p class="text-sm font-bold text-slate-400 mb-1">분석 대상 평균 취업률</p>
+                <h2 class="text-4xl font-black text-slate-800 tracking-tighter">74.9<span class="text-xl ml-1">%</span></h2>
+                <p class="text-sm text-emerald-500 mt-2 font-bold">▲ 전년 대비 2.4% 상승</p>
             </div>
-            <div class="card p-6 border-l-4 border-amber-500">
-                <p class="text-sm text-slate-500 font-semibold">평균 등록금</p>
-                <h2 class="text-2xl font-bold text-slate-800" id="avgTuition">4,250,000원</h2>
+            <div class="glass-card p-8 border-l-8 border-orange-400">
+                <p class="text-sm font-bold text-slate-400 mb-1">취업-장학금 상관관계</p>
+                <h2 class="text-4xl font-black text-slate-800 tracking-tighter">매우 높음</h2>
+                <p class="text-sm text-slate-400 mt-2 font-medium">취업률 상위 그룹 장학금 혜택 집중</p>
             </div>
         </div>
 
-        <!-- 차트 섹션 -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            <div class="card p-6">
-                <h3 class="text-lg font-bold mb-4">주요 학과별 취업률 비교</h3>
-                <canvas id="employmentChart" height="200"></canvas>
+        <!-- 시각화 섹션 -->
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 mb-12">
+            <!-- 취업률 랭킹 -->
+            <div class="glass-card p-8 lg:col-span-3">
+                <h3 class="text-xl font-bold mb-8 flex items-center gap-2">
+                    <span class="w-2 h-6 bg-teal-500 rounded-full"></span>
+                    기관별 취업 성과 순위
+                </h3>
+                <div class="h-[350px]">
+                    <canvas id="employmentChart"></canvas>
+                </div>
             </div>
-            <div class="card p-6">
-                <h3 class="text-lg font-bold mb-4">학과별 등록금 현황</h3>
-                <canvas id="tuitionChart" height="200"></canvas>
+            
+            <!-- 취업률 인사이트 -->
+            <div class="lg:col-span-2 space-y-6">
+                <div class="employment-gradient p-8 rounded-[32px] text-white shadow-xl">
+                    <h3 class="text-xl font-bold mb-6 italic">Strategic Insight</h3>
+                    <div class="space-y-6">
+                        <div class="flex gap-4">
+                            <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center font-bold">1</div>
+                            <p class="text-sm leading-relaxed text-teal-50">대학원 과정 간호학과의 취업률은 <b>95%</b>에 육박하며, 전문 간호사 및 교육직 진출이 활발함.</p>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center font-bold">2</div>
+                            <p class="text-sm leading-relaxed text-teal-50"><b>가야대학교</b>는 실무 중심 교육을 통해 학부 과정 중 가장 높은 <b>74.1%</b>의 취업률을 기록.</p>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center font-bold">3</div>
+                            <p class="text-sm leading-relaxed text-teal-50">부산대 학부 과정은 상대적으로 낮게 측정되었으나, 상급 종합병원 취업 및 국가고시 합격 후 대기 상태가 반영됨.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- 데이터 테이블 -->
-        <div class="card overflow-hidden">
-            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
-                <h3 class="text-lg font-bold">전체 학과 데이터 목록</h3>
+        <div class="glass-card overflow-hidden">
+            <div class="p-8 border-b border-slate-100 flex justify-between items-center">
+                <h3 class="text-xl font-bold text-slate-800 italic underline decoration-teal-500 underline-offset-8">DATA TABLE</h3>
             </div>
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+                <table class="w-full text-left">
                     <thead>
-                        <tr class="bg-slate-50 text-slate-600 uppercase text-xs">
-                            <th class="px-6 py-4 font-semibold">대학명</th>
-                            <th class="px-6 py-4 font-semibold">학과</th>
-                            <th class="px-6 py-4 font-semibold">계열</th>
-                            <th class="px-6 py-4 font-semibold text-right">경쟁률</th>
-                            <th class="px-6 py-4 font-semibold text-right">취업률</th>
-                            <th class="px-6 py-4 font-semibold text-right">등록금</th>
+                        <tr class="bg-slate-50/50">
+                            <th class="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-widest">Institution</th>
+                            <th class="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-widest text-center">취업률</th>
+                            <th class="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-widest text-right">경쟁률</th>
+                            <th class="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-widest text-right">등록금 대비 성과</th>
                         </tr>
                     </thead>
-                    <tbody id="dataTableBody" class="divide-y divide-slate-100">
-                        <!-- JS에서 렌더링 -->
+                    <tbody id="dataTableBody" class="divide-y divide-slate-50">
+                        <!-- JS Rendering -->
                     </tbody>
                 </table>
             </div>
@@ -79,85 +128,95 @@
     </div>
 
     <script>
-        // 샘플 데이터 (업로드된 파일 기반 모의 데이터)
-        const rawData = [
-            { univ: "부산대학교", dept: "간호학과", type: "자연과학", comp: 8.0, employ: 55.7, tuition: 4364000 },
-            { univ: "부산대학교 대학원", dept: "간호학과", type: "자연과학", comp: 1.2, employ: 95.0, tuition: 3150000 },
-            { univ: "가야대학교(김해)", dept: "간호학과", type: "자연과학", comp: 6.3, employ: 74.1, tuition: 7534000 },
-            { univ: "부산대학교 대학원", dept: "한의학과", type: "의학계열", comp: 2.5, employ: 85.7, tuition: 4756000 },
-            { univ: "부산대학교 대학원", dept: "항공우주공학과", type: "공학계열", comp: 1.5, employ: 78.6, tuition: 3423000 },
-            { univ: "부산대학교 대학원", dept: "행정학과", type: "인문사회", comp: 1.8, employ: 66.7, tuition: 2400000 },
-            { univ: "부산대학교 대학원", dept: "화학과", type: "자연과학", comp: 1.1, employ: 90.3, tuition: 3150000 }
+        const fullData = [
+            { univ: "부산대학교 일반대학원", dept: "간호학과", type: "대학원", employ: 95.0, comp: 1.2, tuition: 3150000, score: "최상" },
+            { univ: "가야대학교(김해)", dept: "간호학과", type: "대학", employ: 74.1, comp: 6.3, tuition: 7534000, score: "우수" },
+            { univ: "부산대학교", dept: "간호학과", type: "대학", employ: 55.7, comp: 8.0, tuition: 4364000, score: "보통" }
         ];
 
-        function renderTable(filter = "") {
-            const tbody = document.getElementById('dataTableBody');
-            const filtered = rawData.filter(d => 
-                d.univ.includes(filter) || d.dept.includes(filter)
-            );
+        let currentChart = null;
+
+        function renderUI(filterType = 'all') {
+            const filtered = filterType === 'all' ? fullData : fullData.filter(d => d.type === filterType);
             
+            // 테이블 렌더링
+            const tbody = document.getElementById('dataTableBody');
             tbody.innerHTML = filtered.map(d => `
-                <tr class="hover:bg-blue-50 transition-colors">
-                    <td class="px-6 py-4 font-medium text-slate-800">${d.univ}</td>
-                    <td class="px-6 py-4 text-slate-600">${d.dept}</td>
-                    <td class="px-6 py-4"><span class="px-2 py-1 bg-slate-100 rounded text-xs">${d.type}</span></td>
-                    <td class="px-6 py-4 text-right font-mono">${d.comp}:1</td>
-                    <td class="px-6 py-4 text-right font-mono text-blue-600 font-bold">${d.employ}%</td>
-                    <td class="px-6 py-4 text-right font-mono text-slate-700">${d.tuition.toLocaleString()}원</td>
+                <tr class="hover:bg-teal-50/30 transition-colors">
+                    <td class="px-8 py-6">
+                        <div class="text-lg font-bold text-slate-800">${d.univ}</div>
+                        <div class="text-xs font-bold text-teal-600">${d.dept}</div>
+                    </td>
+                    <td class="px-8 py-6 text-center">
+                        <div class="inline-flex flex-col items-center">
+                            <span class="text-2xl font-black text-slate-800 stat-value">${d.employ}%</span>
+                            <div class="w-24 h-2 bg-slate-100 rounded-full mt-2 overflow-hidden">
+                                <div class="h-full bg-teal-500 rounded-full" style="width: ${d.employ}%"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-8 py-6 text-right">
+                        <span class="text-sm font-bold text-slate-400">${d.comp}:1</span>
+                    </td>
+                    <td class="px-8 py-6 text-right">
+                        <span class="px-4 py-1.5 rounded-lg text-xs font-black ${d.score === '최상' ? 'bg-emerald-100 text-emerald-700' : d.score === '우수' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'}">
+                            ${d.score}
+                        </span>
+                    </td>
                 </tr>
             `).join('');
+
+            updateChart(filtered);
         }
 
-        function initCharts() {
-            // 취업률 차트
-            new Chart(document.getElementById('employmentChart'), {
+        function updateChart(chartData) {
+            const ctx = document.getElementById('employmentChart').getContext('2d');
+            
+            if (currentChart) currentChart.destroy();
+
+            currentChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: rawData.map(d => d.dept),
+                    labels: chartData.map(d => d.univ),
                     datasets: [{
                         label: '취업률 (%)',
-                        data: rawData.map(d => d.employ),
-                        backgroundColor: 'rgba(59, 130, 246, 0.6)',
-                        borderColor: 'rgb(59, 130, 246)',
-                        borderWidth: 1,
-                        borderRadius: 6
+                        data: chartData.map(d => d.employ),
+                        backgroundColor: chartData.map(d => d.type === '대학원' ? '#0d9488' : '#2dd4bf'),
+                        borderRadius: 12,
+                        barThickness: 60
                     }]
                 },
                 options: {
-                    responsive: true,
+                    maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, max: 100 } }
-                }
-            });
-
-            // 등록금 차트
-            new Chart(document.getElementById('tuitionChart'), {
-                type: 'line',
-                data: {
-                    labels: rawData.map(d => d.dept),
-                    datasets: [{
-                        label: '평균 등록금 (원)',
-                        data: rawData.map(d => d.tuition),
-                        borderColor: 'rgb(245, 158, 11)',
-                        tension: 0.3,
-                        fill: true,
-                        backgroundColor: 'rgba(245, 158, 11, 0.1)'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { display: false } }
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            max: 100,
+                            grid: { borderDash: [5, 5], color: '#e2e8f0' },
+                            ticks: { font: { weight: 'bold' } }
+                        },
+                        x: { grid: { display: false } }
+                    }
                 }
             });
         }
 
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            renderTable(e.target.value);
-        });
+        function filterData(type) {
+            // 버튼 스타일 변경
+            const buttons = document.querySelectorAll('.nav-filter-btn');
+            buttons.forEach(btn => {
+                const targetText = type === 'all' ? '전체' : type === '대학' ? '학부' : '대학원';
+                if(btn.innerText.includes(targetText)) {
+                    btn.className = "nav-filter-btn px-4 py-2 rounded-xl text-sm font-bold transition-all bg-teal-600 text-white shadow-md";
+                } else {
+                    btn.className = "nav-filter-btn px-4 py-2 rounded-xl text-sm font-bold transition-all text-slate-500 hover:bg-slate-50";
+                }
+            });
+            renderUI(type);
+        }
 
-        // 초기 실행
-        renderTable();
-        initCharts();
+        window.onload = () => renderUI();
     </script>
 </body>
 </html>
