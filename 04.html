@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>대학 학과 데이터 대시보드</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap');
+        body { font-family: 'Pretendard', sans-serif; background-color: #f8fafc; }
+        .card { background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-7xl mx-auto">
+        <!-- 헤더 -->
+        <header class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-slate-800">🎓 학과 데이터 분석 대시보드</h1>
+                <p class="text-slate-500">학과별 경쟁률, 취업률 및 등록금 통계</p>
+            </div>
+            <div class="flex gap-2">
+                <input type="text" id="searchInput" placeholder="학과 또는 대학명 검색..." class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+        </header>
+
+        <!-- 요약 카드 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="card p-6 border-l-4 border-blue-500">
+                <p class="text-sm text-slate-500 font-semibold">평균 취업률</p>
+                <h2 class="text-2xl font-bold text-slate-800" id="avgEmployment">72.4%</h2>
+            </div>
+            <div class="card p-6 border-l-4 border-emerald-500">
+                <p class="text-sm text-slate-500 font-semibold">최고 경쟁률</p>
+                <h2 class="text-2xl font-bold text-slate-800" id="maxCompetition">8.0 : 1</h2>
+            </div>
+            <div class="card p-6 border-l-4 border-amber-500">
+                <p class="text-sm text-slate-500 font-semibold">평균 등록금</p>
+                <h2 class="text-2xl font-bold text-slate-800" id="avgTuition">4,250,000원</h2>
+            </div>
+        </div>
+
+        <!-- 차트 섹션 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <div class="card p-6">
+                <h3 class="text-lg font-bold mb-4">주요 학과별 취업률 비교</h3>
+                <canvas id="employmentChart" height="200"></canvas>
+            </div>
+            <div class="card p-6">
+                <h3 class="text-lg font-bold mb-4">학과별 등록금 현황</h3>
+                <canvas id="tuitionChart" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- 데이터 테이블 -->
+        <div class="card overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                <h3 class="text-lg font-bold">전체 학과 데이터 목록</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-600 uppercase text-xs">
+                            <th class="px-6 py-4 font-semibold">대학명</th>
+                            <th class="px-6 py-4 font-semibold">학과</th>
+                            <th class="px-6 py-4 font-semibold">계열</th>
+                            <th class="px-6 py-4 font-semibold text-right">경쟁률</th>
+                            <th class="px-6 py-4 font-semibold text-right">취업률</th>
+                            <th class="px-6 py-4 font-semibold text-right">등록금</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody" class="divide-y divide-slate-100">
+                        <!-- JS에서 렌더링 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 샘플 데이터 (업로드된 파일 기반 모의 데이터)
+        const rawData = [
+            { univ: "부산대학교", dept: "간호학과", type: "자연과학", comp: 8.0, employ: 55.7, tuition: 4364000 },
+            { univ: "부산대학교 대학원", dept: "간호학과", type: "자연과학", comp: 1.2, employ: 95.0, tuition: 3150000 },
+            { univ: "가야대학교(김해)", dept: "간호학과", type: "자연과학", comp: 6.3, employ: 74.1, tuition: 7534000 },
+            { univ: "부산대학교 대학원", dept: "한의학과", type: "의학계열", comp: 2.5, employ: 85.7, tuition: 4756000 },
+            { univ: "부산대학교 대학원", dept: "항공우주공학과", type: "공학계열", comp: 1.5, employ: 78.6, tuition: 3423000 },
+            { univ: "부산대학교 대학원", dept: "행정학과", type: "인문사회", comp: 1.8, employ: 66.7, tuition: 2400000 },
+            { univ: "부산대학교 대학원", dept: "화학과", type: "자연과학", comp: 1.1, employ: 90.3, tuition: 3150000 }
+        ];
+
+        function renderTable(filter = "") {
+            const tbody = document.getElementById('dataTableBody');
+            const filtered = rawData.filter(d => 
+                d.univ.includes(filter) || d.dept.includes(filter)
+            );
+            
+            tbody.innerHTML = filtered.map(d => `
+                <tr class="hover:bg-blue-50 transition-colors">
+                    <td class="px-6 py-4 font-medium text-slate-800">${d.univ}</td>
+                    <td class="px-6 py-4 text-slate-600">${d.dept}</td>
+                    <td class="px-6 py-4"><span class="px-2 py-1 bg-slate-100 rounded text-xs">${d.type}</span></td>
+                    <td class="px-6 py-4 text-right font-mono">${d.comp}:1</td>
+                    <td class="px-6 py-4 text-right font-mono text-blue-600 font-bold">${d.employ}%</td>
+                    <td class="px-6 py-4 text-right font-mono text-slate-700">${d.tuition.toLocaleString()}원</td>
+                </tr>
+            `).join('');
+        }
+
+        function initCharts() {
+            // 취업률 차트
+            new Chart(document.getElementById('employmentChart'), {
+                type: 'bar',
+                data: {
+                    labels: rawData.map(d => d.dept),
+                    datasets: [{
+                        label: '취업률 (%)',
+                        data: rawData.map(d => d.employ),
+                        backgroundColor: 'rgba(59, 130, 246, 0.6)',
+                        borderColor: 'rgb(59, 130, 246)',
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, max: 100 } }
+                }
+            });
+
+            // 등록금 차트
+            new Chart(document.getElementById('tuitionChart'), {
+                type: 'line',
+                data: {
+                    labels: rawData.map(d => d.dept),
+                    datasets: [{
+                        label: '평균 등록금 (원)',
+                        data: rawData.map(d => d.tuition),
+                        borderColor: 'rgb(245, 158, 11)',
+                        tension: 0.3,
+                        fill: true,
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            renderTable(e.target.value);
+        });
+
+        // 초기 실행
+        renderTable();
+        initCharts();
+    </script>
+</body>
+</html>
