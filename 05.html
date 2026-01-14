@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>유튜브 댓글 명사 빈도 분석 보고서</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .gradient-text {
+            background: linear-gradient(90deg, #ef4444, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .word-cloud-container {
+            position: relative;
+            height: 400px;
+            background: white;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        .word {
+            position: absolute;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .word:hover {
+            transform: scale(1.2);
+            z-index: 50;
+            color: #ef4444 !important;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4 gradient-text">유튜브 댓글 데이터 분석 보고서</h1>
+            <p class="text-gray-600 text-lg">시청자 반응 분석 및 콘텐츠 전략 인사이트</p>
+        </header>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center">
+                <div class="bg-red-100 p-4 rounded-full mr-4 text-red-600">
+                    <i class="fa-solid fa-comments text-2xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">핵심 키워드 1위</p>
+                    <p class="text-2xl font-bold text-gray-800">기자</p>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center">
+                <div class="bg-blue-100 p-4 rounded-full mr-4 text-blue-600">
+                    <i class="fa-solid fa-users text-2xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">주요 가치</p>
+                    <p class="text-2xl font-bold text-gray-800">공동체 의식</p>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center">
+                <div class="bg-green-100 p-4 rounded-full mr-4 text-green-600">
+                    <i class="fa-solid fa-film text-2xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">콘텐츠 평가</p>
+                    <p class="text-2xl font-bold text-gray-800">영화적 완성도</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+            <!-- Word Cloud Section -->
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+                <h2 class="text-2xl font-bold mb-6 flex items-center">
+                    <i class="fa-solid fa-cloud-bolt mr-2 text-blue-500"></i> 핵심 키워드 워드클라우드
+                </h2>
+                <div id="wordCloud" class="word-cloud-container">
+                    <!-- Words will be injected here via JS -->
+                </div>
+                <p class="mt-4 text-sm text-gray-500 text-center">* 키워드 크기는 빈도수를 나타냅니다.</p>
+            </div>
+
+            <!-- Chart Section -->
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+                <h2 class="text-2xl font-bold mb-6 flex items-center">
+                    <i class="fa-solid fa-chart-simple mr-2 text-red-500"></i> 빈도 TOP 7 분석
+                </h2>
+                <canvas id="frequencyChart" height="250"></canvas>
+            </div>
+        </div>
+
+        <!-- Group Analysis Section -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold mb-8 text-center text-gray-800">핵심 주제 그룹 분석</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Group 1 -->
+                <div class="bg-white p-6 rounded-2xl border-t-4 border-blue-500 shadow-sm transition-all card-hover">
+                    <div class="text-blue-500 text-3xl mb-4"><i class="fa-solid fa-microscope"></i></div>
+                    <h3 class="text-xl font-bold mb-2">저널리즘과 담론</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">기자, 한국, 나라, 세상 중심. 시청자들이 콘텐츠를 사회적 이슈와 국가적 담론의 창으로 인식하고 있음.</p>
+                </div>
+                <!-- Group 2 -->
+                <div class="bg-white p-6 rounded-2xl border-t-4 border-red-500 shadow-sm transition-all card-hover">
+                    <div class="text-red-500 text-3xl mb-4"><i class="fa-solid fa-star"></i></div>
+                    <h3 class="text-xl font-bold mb-2">영화적 완성도</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">영화, 영상, 대박, 매력 중심. 높은 제작 수준을 인지하고 있으며 이는 높은 만족도로 직결됨.</p>
+                </div>
+                <!-- Group 3 -->
+                <div class="bg-white p-6 rounded-2xl border-t-4 border-green-500 shadow-sm transition-all card-hover">
+                    <div class="text-green-500 text-3xl mb-4"><i class="fa-solid fa-handshake-angle"></i></div>
+                    <h3 class="text-xl font-bold mb-2">감정적 지지</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">우리, 모두, 화이팅, 힘 중심. 강력한 공동체 의식과 제작자에 대한 정서적 유대감 형성.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Insights / Strategic Recommendation -->
+        <section class="bg-gray-900 text-white p-10 rounded-3xl mb-12 overflow-hidden relative">
+            <div class="relative z-10">
+                <h2 class="text-3xl font-bold mb-8">향후 전략적 제언</h2>
+                <div class="space-y-6">
+                    <div class="flex items-start">
+                        <div class="bg-blue-600 p-2 rounded-lg mr-4 mt-1"><i class="fa-solid fa-lightbulb"></i></div>
+                        <div>
+                            <h4 class="text-xl font-bold">전문성 및 탐사보도 강화</h4>
+                            <p class="text-gray-400">키워드 1위 '기자'의 브랜드 가치를 활용한 심층 기획물 제작</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="bg-red-600 p-2 rounded-lg mr-4 mt-1"><i class="fa-solid fa-comments"></i></div>
+                        <div>
+                            <h4 class="text-xl font-bold">시청자 참여형 공론장 개설</h4>
+                            <p class="text-gray-400">'우리'라는 공동체 의식을 반영한 라이브 세션 및 제보 콘텐츠 활성화</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="bg-yellow-600 p-2 rounded-lg mr-4 mt-1"><i class="fa-solid fa-bullhorn"></i></div>
+                        <div>
+                            <h4 class="text-xl font-bold">고품질 저널리즘 마케팅</h4>
+                            <p class="text-gray-400">'영화 같은 탐사 취재'를 핵심 셀링 포인트로 확립</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Background decoration -->
+            <div class="absolute top-0 right-0 w-64 h-64 bg-blue-600 opacity-10 rounded-full -mr-20 -mt-20"></div>
+            <div class="absolute bottom-0 left-0 w-48 h-48 bg-red-600 opacity-10 rounded-full -ml-10 -mb-10"></div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center text-gray-500 pb-12">
+            <p>© 2024 유튜브 데이터 분석 센터 | 분석 모델: 명사 빈도 분석 & 워드클라우드</p>
+        </footer>
+    </div>
+
+    <script>
+        // 1. Chart Visualization
+        const ctx = document.getElementById('frequencyChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['기자', '우리', '모두', '대박', '한국', '영화', '나라'],
+                datasets: [{
+                    label: '빈도수',
+                    data: [85, 72, 60, 58, 55, 52, 48],
+                    backgroundColor: [
+                        'rgba(239, 68, 68, 0.8)',
+                        'rgba(59, 130, 246, 0.8)',
+                        'rgba(59, 130, 246, 0.6)',
+                        'rgba(16, 185, 129, 0.8)',
+                        'rgba(107, 114, 128, 0.8)',
+                        'rgba(139, 92, 246, 0.8)',
+                        'rgba(245, 158, 11, 0.8)'
+                    ],
+                    borderRadius: 8,
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { grid: { display: false } }
+                }
+            }
+        });
+
+        // 2. Simple Word Cloud Generator
+        const keywords = [
+            { text: '기자', size: 60, color: '#ef4444', top: '40%', left: '40%' },
+            { text: '우리', size: 48, color: '#3b82f6', top: '20%', left: '20%' },
+            { text: '모두', size: 40, color: '#3b82f6', top: '65%', left: '15%' },
+            { text: '대박', size: 44, color: '#10b981', top: '15%', left: '60%' },
+            { text: '한국', size: 36, color: '#6b7280', top: '70%', left: '65%' },
+            { text: '영화', size: 42, color: '#8b5cf6', top: '45%', left: '10%' },
+            { text: '나라', size: 38, color: '#f59e0b', top: '75%', left: '45%' },
+            { text: '세상', size: 30, color: '#6366f1', top: '10%', left: '40%' },
+            { text: '영상', size: 28, color: '#ec4899', top: '35%', left: '75%' },
+            { text: '힘', size: 32, color: '#14b8a6', top: '55%', left: '80%' },
+            { text: '화이팅', size: 34, color: '#f97316', top: '80%', left: '10%' },
+            { text: '매력', size: 26, color: '#a855f7', top: '25%', left: '80%' }
+        ];
+
+        const cloudContainer = document.getElementById('wordCloud');
+        keywords.forEach(kw => {
+            const span = document.createElement('span');
+            span.className = 'word';
+            span.innerText = kw.text;
+            span.style.fontSize = kw.size + 'px';
+            span.style.color = kw.color;
+            span.style.top = kw.top;
+            span.style.left = kw.left;
+            cloudContainer.appendChild(span);
+        });
+
+        // Add some random movement to words
+        document.querySelectorAll('.word').forEach(word => {
+            word.addEventListener('mouseover', () => {
+                word.style.letterSpacing = '2px';
+            });
+            word.addEventListener('mouseout', () => {
+                word.style.letterSpacing = 'normal';
+            });
+        });
+    </script>
+</body>
+</html>
