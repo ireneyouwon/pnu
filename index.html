@@ -93,7 +93,7 @@
     <!-- Navigation -->
     <nav class="glass-nav fixed w-full z-50 px-8 py-5 flex justify-between items-center">
         <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center font-black text-xs">Y</div>
+            <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center font-black text-xs text-white">Y</div>
             <div class="text-lg font-black tracking-tighter">정유원<span class="text-blue-500">.DATALAB</span></div>
         </div>
         <div class="space-x-10 text-[11px] font-bold tracking-[0.2em] hidden md:flex">
@@ -198,14 +198,14 @@
                         <span class="tag px-4 py-1 rounded-full text-[11px] font-bold">Personalized</span>
                         <span class="tag px-4 py-1 rounded-full text-[11px] font-bold">Predictive Model</span>
                     </div>
-                    <div class="w-10 h-10 rounded-full border border-blue-500/50 flex items-center justify-center group-hover:bg-blue-500 transition-all">
+                    <div class="w-10 h-10 rounded-full border border-blue-500/50 flex items-center justify-center group-hover:bg-blue-500 transition-all text-white">
                         <i class="fa-solid fa-arrow-right"></i>
                     </div>
                 </div>
             </a>
 
-            <!-- 05 -->
-            <a href="05.html" class="project-card rounded-3xl p-8 flex flex-col h-[400px] group">
+            <!-- 05 (Updated Link) -->
+            <a href="https://ireneyouwon.github.io/pnu/05.html" target="_blank" class="project-card rounded-3xl p-8 flex flex-col h-[400px] group border-purple-500/20">
                 <div class="mb-auto">
                     <div class="flex justify-between items-center mb-6">
                         <i class="fa-solid fa-robot text-3xl opacity-50 group-hover:text-purple-400 transition"></i>
@@ -215,8 +215,11 @@
                     <p class="text-gray-500 text-sm">유튜브 댓글 및 영상 데이터를 활용한 사이버 폭력 양상 및 AI 윤리 인식 마이닝(조별)</p>
                 </div>
                 <div class="flex flex-wrap gap-2 mt-6">
-                    <span class="tag px-3 py-1 rounded-full text-[10px] font-bold">텍스트 마이닝</span>
-                    <span class="tag px-3 py-1 rounded-full text-[10px] font-bold">Team Project</span>
+                    <span class="tag px-3 py-1 rounded-full text-[10px] font-bold" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; border-color: rgba(139, 92, 246, 0.2);">텍스트 마이닝</span>
+                    <span class="tag px-3 py-1 rounded-full text-[10px] font-bold" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; border-color: rgba(139, 92, 246, 0.2);">Team Project</span>
+                </div>
+                <div class="mt-4 text-[10px] font-bold text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                    외부 링크로 이동 <i class="fa-solid fa-external-link ml-1"></i>
                 </div>
             </a>
         </div>
@@ -271,8 +274,10 @@
             const nav = document.querySelector('nav');
             if (window.scrollY > 50) {
                 nav.style.padding = '1rem 2rem';
+                nav.style.background = 'rgba(5, 5, 5, 0.9)';
             } else {
                 nav.style.padding = '1.25rem 2rem';
+                nav.style.background = 'rgba(5, 5, 5, 0.7)';
             }
         });
     </script>
